@@ -1,8 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const app = express();
+const bodyParser = require("body-parser");
 
+const app = express();
 const MongoDB = "mongodb://localhost/botairdb";
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 mongoose.connect(MongoDB);
 const db = mongoose.connection;
@@ -16,13 +20,10 @@ const AirDataModel = mongoose.model("airdata", {
   direction: Number,
 });
 
-app.post("/save_to_db", function (req, res) {
-  const airdatamodel = new AirDataModel({
-    username: req.params.username,
-    speed: req.params.speed,
-    direction: req.params.direction,
-  });
-  airdatamodel.save();
+app.post("/save_to_db", async function (req, res) {
+  const airdatamodel = new AirDataModel(req.body);
+  let airdata = await airdatamodel.save();
+  res.json(airdata);
 });
-
+//TODO check save to DB
 app.listen(3010);
